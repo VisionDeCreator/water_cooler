@@ -1,7 +1,5 @@
 module galliun::water_cooler {
-    // use std::option::{Self, Option};
     use std::string::{Self, String};
-    // use std::vector::{Self};
 
     use sui::display::{Self};
     // use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
@@ -11,7 +9,7 @@ module galliun::water_cooler {
     // use sui::balance::{Self, Balance};
     // use sui::object::{Self, ID, UID};
     use sui::table::{Self, Table};
-    use sui::object_table::{Self, ObjectTable};
+    // use sui::object_table::{Self, ObjectTable};
     use sui::transfer_policy::{Self};
 
     use galliun::attributes::{Attributes};
@@ -172,49 +170,49 @@ module galliun::water_cooler {
     // === Utility functions ===
 
     public(package) fun owner(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): address {
-    waterCooler.owner
+        waterCooler.owner
     }
     
     public(package) fun size(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): u16 {
-    waterCooler.size
+        waterCooler.size
     }
     
     public(package) fun name(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): String {
-    waterCooler.name
+        waterCooler.name
     }
     
     public(package) fun image_url(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): String {
-    waterCooler.image_url
+        waterCooler.image_url
     }
 
     public(package) fun is_initialized(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): bool {
-    waterCooler.is_initialized
+        waterCooler.is_initialized
     }
     
     // TO DO: create a treasury attribute and an undate treasury function
     public(package) fun treasury(
-    waterCooler: &WaterCooler
+        waterCooler: &WaterCooler
     ): address {
-    waterCooler.owner
+        waterCooler.owner
     }
 
     // === Public Package Functions ===
 
     public(package) fun set_image(
-    nft: &mut MizuNFT,
-    image: String,
+        nft: &mut MizuNFT,
+        image: String,
     ) {
-    option::fill(&mut nft.image, image);
+        option::fill(&mut nft.image, image);
     }
 
     public(package) fun id(

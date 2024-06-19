@@ -8,10 +8,10 @@ module galliun::mint {
     use sui::event;
     use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
     use sui::object_table::ObjectTable;
-    use sui::package::{Self};
+    use sui::package::{Self, Publisher};
     use sui::sui::{SUI};
     use sui::table_vec::{Self, TableVec};
-    use sui::transfer_policy::{TransferPolicy};
+    use sui::transfer_policy::{Self, TransferPolicy};
 
     use galliun::attributes::Attributes;
     use galliun::water_cooler::{Self , MizuNFT, WaterCooler};
@@ -98,25 +98,25 @@ module galliun::mint {
         otw: MINT,
         ctx: &mut TxContext,
     ) {
-      let publisher = package::claim(otw, ctx);
+        let publisher = package::claim(otw, ctx);
 
-        let mut wl_ticket_display = display::new<WhitelistTicket>(&publisher, ctx);
-        wl_ticket_display.add(b"name".to_string(), b"name".to_string());
-        wl_ticket_display.add(b"description".to_string(), b"description".to_string());
-        wl_ticket_display.add(b"number".to_string(), b"{number}".to_string());
-        wl_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
-        wl_ticket_display.update_version();
-        transfer::public_transfer(wl_ticket_display, ctx.sender());
+            let mut wl_ticket_display = display::new<WhitelistTicket>(&publisher, ctx);
+            wl_ticket_display.add(b"name".to_string(), b"name".to_string());
+            wl_ticket_display.add(b"description".to_string(), b"description".to_string());
+            wl_ticket_display.add(b"number".to_string(), b"{number}".to_string());
+            wl_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
+            wl_ticket_display.update_version();
+            transfer::public_transfer(wl_ticket_display, ctx.sender());
 
-        let mut og_ticket_display = display::new<OriginalGangsterTicket>(&publisher, ctx);
-        og_ticket_display.add(b"name".to_string(), b"name".to_string());
-        og_ticket_display.add(b"description".to_string(), b"description".to_string());
-        og_ticket_display.add(b"number".to_string(), b"{number}".to_string());
-        og_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
-        og_ticket_display.update_version();
-        transfer::public_transfer(og_ticket_display, ctx.sender());
+            let mut og_ticket_display = display::new<OriginalGangsterTicket>(&publisher, ctx);
+            og_ticket_display.add(b"name".to_string(), b"name".to_string());
+            og_ticket_display.add(b"description".to_string(), b"description".to_string());
+            og_ticket_display.add(b"number".to_string(), b"{number}".to_string());
+            og_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
+            og_ticket_display.update_version();
+            transfer::public_transfer(og_ticket_display, ctx.sender());
 
-      transfer::public_transfer(publisher, ctx.sender());
+        transfer::public_transfer(publisher, ctx.sender());
     }
 
     public(package) fun create_mint_distributer(ctx: &mut TxContext) {
@@ -140,7 +140,7 @@ module galliun::mint {
         let adminCap = MintAdminCap{ id: object::new(ctx) };
 
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(adminCap, tx_context::sender(ctx));
+        transfer::transfer(adminCap, ctx.sender());
 
       // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
@@ -156,7 +156,7 @@ module galliun::mint {
             phase: 0,
         };
 
-        transfer::transfer(whitelist_ticket, tx_context::sender(ctx));
+        transfer::transfer(whitelist_ticket, ctx.sender());
     }
 
     public(package) fun create_og_distributer(ctx: &mut TxContext) {
@@ -165,7 +165,7 @@ module galliun::mint {
             phase: 0,
         };
 
-        transfer::transfer(og_ticket, tx_context::sender(ctx));
+        transfer::transfer(og_ticket, ctx.sender());
     }
 
     // === Public-Mutative Functions ===
@@ -227,7 +227,7 @@ module galliun::mint {
 
     public fun claim_mint(
         waterCooler: &WaterCooler,
-        mint: &mut Mint,
+        mut mint: Mint,
         kiosk: &mut Kiosk,
         kiosk_owner_cap: &KioskOwnerCap,
         policy: &TransferPolicy<MizuNFT>,
@@ -235,15 +235,14 @@ module galliun::mint {
     ) {
         assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
 
-        // Extract MizuNFT and payment from Mint.
-        let nft = option::extract(&mut mint.nft);
-        let payment = option::extract(&mut mint.payment);
+        let nft = mint.nft.extract();
+        let payment = mint.payment.extract();
 
         event::emit(
           MintClaimedEvent {
             nft_id: water_cooler::id(&nft),
             nft_number: water_cooler::number(&nft),
-            claimed_by: tx_context::sender(ctx),
+            claimed_by: ctx.sender(),
             kiosk_id: object::id(kiosk),
           }
         );
@@ -255,31 +254,30 @@ module galliun::mint {
         transfer::public_transfer(payment, water_cooler::owner(waterCooler));
 
         // Destroy the mint.
-        // destroy_mint_internal(mint);
+        destroy_mint_internal(mint);
     }
 
     /// Add MizuNFTs to the mint warehouse.
     public fun admin_add_to_mint_warehouse(
         _: &MintAdminCap,
         waterCooler: &WaterCooler,
-        nfts: &mut vector<MizuNFT>,
+        mut nfts: vector<MizuNFT>,
         warehouse: &mut MintWarehouse,
         _: &TxContext,
     ) {
 
         assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
 
-        while (!vector::is_empty(nfts)) {
-            let pfp = vector::pop_back(nfts);
-            table_vec::push_back(&mut warehouse.nfts, pfp);
+        while (!nfts.is_empty()) {
+            let nft = nfts.pop_back();
+            warehouse.nfts.push_back(nft);
         };
 
-        if ((table_vec::length(&warehouse.nfts) as u16) == water_cooler::size(waterCooler)) {
+        if ((warehouse.nfts.length() as u16) == water_cooler::size(waterCooler)) {
             warehouse.is_initialized = true;
         };
 
-        
-        // vector::destroy_empty(nfts);
+        nfts.destroy_empty()
     }
 
 
@@ -363,17 +361,17 @@ module galliun::mint {
     }
 
     public fun set_og_ticket_display_name(
-        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        og_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
         new_name: String
     ) {
-        display::edit(wl_ticket_display, b"name".to_string(), new_name);
+        display::edit(og_ticket_display, b"name".to_string(), new_name);
     }
 
     public fun set_og_ticket_display_image(
-        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        og_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
         new_image: String
     ) {
-        display::edit(wl_ticket_display, b"image_url".to_string(), new_image);
+        display::edit(og_ticket_display, b"image_url".to_string(), new_image);
     }
 
     fun mint_internal(
@@ -431,5 +429,17 @@ module galliun::mint {
     #[test_only]
     public fun init_for_testing(ctx: &mut TxContext) {
       init(MINT {}, ctx);
+    }
+    public fun warehouse_length(warehouse: &mut MintWarehouse): u64 {
+        warehouse.nfts.length()
+    }
+    public fun nft_minted_by(nft: &mut Mint): address {
+        nft.minted_by
+    }
+    public fun nft_number(mint: &mut Mint): u16 {
+        mint.number
+    }
+    public fun kiosk_items(kiosk: &mut Kiosk): u32 {
+        kiosk::item_count(kiosk)
     }
 }
