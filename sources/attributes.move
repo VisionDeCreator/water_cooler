@@ -12,6 +12,12 @@ module galliun::attributes {
         fields: VecMap<String, String>,
     }
 
+    /// CreateAttributesCap is used to create an Attributes object.
+    public struct CreateAttributesCap has key, store {
+        id: UID,
+        number: u16,
+    }
+
     // === Public view functions ===
 
     /// Returns the number of the `Attributes` object.
@@ -23,13 +29,32 @@ module galliun::attributes {
 
     /// Create an `Attributes` object with a `CreateAttributesCap`.
     public(package) fun new(
+        cap: CreateAttributesCap,
         keys: vector<String>,
         values: vector<String>,
         ctx: &mut TxContext,
     ): Attributes {
-        Attributes {
+        let attributes = Attributes {
             id: object::new(ctx),
             fields: vec_map::from_keys_values(keys, values),
-        }
+        };
+
+        let CreateAttributesCap { id, number: _ } = cap;
+        id.delete();
+
+        attributes
+    }
+
+    /// Create `CreateAttributesCap` object.
+    public(package) fun create_attributes_cap(
+        number: u16,
+        ctx: &mut TxContext,
+    ): CreateAttributesCap {
+        let cap = CreateAttributesCap {
+            id: object::new(ctx),
+            number: number,
+        };
+
+        cap
     }
 }
