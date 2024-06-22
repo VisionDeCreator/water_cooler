@@ -2,16 +2,18 @@ module galliun::registry {
 
     // === Imports ===
 
-    use sui::display;
-    use sui::package;
-    use sui::table::{Self, Table};
-    use galliun::collection;
+    use sui::{
+        display,
+        package,
+        table::{Self, Table},
+    };
+    use galliun::water_cooler::{WaterCooler};
 
     public struct REGISTRY has drop {}
 
     public struct Registry has key {
         id: UID,
-        nfts: Table<u16, ID>,
+        nfts: Table<u64, ID>,
         is_initialized: bool,
         is_frozen: bool,
     }
@@ -19,7 +21,7 @@ module galliun::registry {
     // === Constants ===
 
     const EInvalidNftNumber: u64 = 1;
-    const ERegistryNotFrozen: u64 = 4;
+    const ERegistryNotFrozen: u64 = 2;
 
     // === Init Function ===
 
@@ -51,11 +53,12 @@ module galliun::registry {
     }
 
     public fun nft_id_from_number(
-        number: u16,
+        number: u64,
         registry: &Registry,
+        water_cooler: &WaterCooler,
     ): ID {
 
-        assert!(number >= 1 && number <= collection::size(), EInvalidNftNumber);
+        assert!(number >= 1 && number <= water_cooler.supply(), EInvalidNftNumber);
         assert!(registry.is_frozen == true, ERegistryNotFrozen);
 
         registry.nfts[number]
@@ -64,13 +67,14 @@ module galliun::registry {
     // === Public-Friend Functions ===
 
     public(package) fun add(
-        number: u16,
+        number: u64,
         nft_id: ID,
         registry: &mut Registry,
+        water_cooler: &WaterCooler,
     ) {
         registry.nfts.add(number, nft_id);
 
-        if ((registry.nfts.length() as u16) == collection::size()) {
+        if ((registry.nfts.length() as u64) == water_cooler.supply()) {
             registry.is_initialized = true;
         };
     }
