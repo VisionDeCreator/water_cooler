@@ -223,8 +223,7 @@ module galliun::mint {
             warehouse.is_initialized = true;
         };
     }
-
-
+    
     /// Destroy an empty mint warehouse when it's no longer needed.
     public fun destroy_mint_warehouse(
         cap: &MintAdminCap,
@@ -428,9 +427,19 @@ module galliun::mint {
         self.nfts.length()
     }
 
+    public fun get_mint_reveal(self: &Mint) : bool {
+        self.is_revealed
+    }
+
     // === Test Functions ===
     #[test_only]
     public fun init_for_mint(ctx: &mut TxContext) {
         init(MINT {}, ctx);
+    }
+
+    #[test_only]
+    public fun get_nft_id(self: &Mint) : ID {
+       let nft = self.nft.borrow();
+       object::id(nft)
     }
 }
