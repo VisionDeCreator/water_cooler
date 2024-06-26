@@ -206,7 +206,7 @@ module galliun::mint {
     /// Add MizuNFTs to the mint warehouse.
     public fun add_to_mint_warehouse(
         cap: &MintAdminCap,
-        water_cooler: &WaterCooler,
+        self: &WaterCooler,
         mut nfts: vector<MizuNFT>,
         warehouse: &mut MintWarehouse,
     ) {
@@ -219,7 +219,7 @@ module galliun::mint {
         };
         nfts.destroy_empty();
 
-        if (warehouse.nfts.length() == water_cooler.supply()) {
+        if (warehouse.nfts.length() == self.supply()) {
             warehouse.is_initialized = true;
         };
     }
@@ -248,33 +248,33 @@ module galliun::mint {
     // Set mint price, status, phase
     public fun set_mint_price(
         cap: &MintAdminCap,
-        settings: &mut MintSettings,
+        self: &mut MintSettings,
         price: u64,
     ) {
-        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
+        assert!(object::id(self) == cap.`for_settings`, ENotOwner);        
 
         assert!(price > 0, EInvalidPrice);
-        settings.price = price;
+        self.price = price;
     }
 
     public fun set_mint_status(
         cap: &MintAdminCap,
-        settings: &mut MintSettings,        
+        self: &mut MintSettings,        
         status: u8,
     ) {
-        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
-        assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
-        settings.status = status;
+        assert!(object::id(self) == cap.`for_settings`, ENotOwner);        
+        assert!(self.status == 0 || self.status == 1, EInvalidStatusNumber);
+        self.status = status;
     }
 
     public fun set_mint_phase(
         cap: &MintAdminCap,
+        self: &mut MintSettings,        
         phase: u8,
-        settings: &mut MintSettings,
     ) {
-        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
+        assert!(object::id(self) == cap.`for_settings`, ENotOwner);        
         assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
-        settings.phase = phase;
+        self.phase = phase;
     }
     // FIXME: we should discuss 
     public fun reveal_mint(
@@ -376,11 +376,11 @@ module galliun::mint {
     // === Private Functions ===
 
     fun mint_internal(
-        warehouse: &mut MintWarehouse,
+        self: &mut MintWarehouse,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
-        let nft = warehouse.nfts.pop_back();
+        let nft = self.nfts.pop_back();
 
         let mut mint = Mint {
             id: object::new(ctx),
@@ -408,7 +408,7 @@ module galliun::mint {
         transfer::share_object(mint);
     }
 
-    fun destroy_mint_internal(mint: Mint) {
+    fun destroy_mint_internal(self: Mint) {
         let Mint {
             id,
             number: _,
@@ -417,7 +417,7 @@ module galliun::mint {
             is_revealed: _,
             minted_by: _,
             claim_expiration_epoch: _,
-        } = mint;
+        } = self;
         
         option::destroy_none(nft);
         option::destroy_none(payment);
