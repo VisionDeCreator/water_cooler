@@ -78,7 +78,7 @@ module galliun::receive {
         assert!(fee.value() == settings.fee, EIncorrectUSDCFeeAmount);
 
         // Transfer the fee to SM.
-        transfer::public_transfer(fee, @sm_treasury);
+        transfer::public_transfer(fee, @treasury);
 
         // Receive the object.
         let received_object = transfer::public_receive(pfp.uid_mut(), obj_to_receive);
