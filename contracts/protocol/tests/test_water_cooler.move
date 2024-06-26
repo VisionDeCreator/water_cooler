@@ -1,5 +1,5 @@
 #[test_only]
-module galliun::water_cooler_test {
+module galliun::test_water_cooler {
     // === Imports ===
     use sui::{
         test_scenario::{Self as ts, next_tx},

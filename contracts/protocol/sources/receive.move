@@ -145,4 +145,11 @@ module galliun::receive {
     ) {
         settings.fee= amount
     }
+
+    // === Test Functions ===
+
+    #[test_only]
+    public fun init_test_receive(ctx: &mut TxContext) {
+        init(RECEIVE {}, ctx);
+    }
 }
