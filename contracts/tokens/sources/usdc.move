@@ -1,4 +1,4 @@
-module usdc::usdc {
+module CoolerFactoryToken::usdc {
     use std::option;
     use sui::object::{Self, UID, ID};
     use sui::tx_context::{TxContext};

@@ -75,6 +75,12 @@ module galliun::mizu_nft {
         object::id(self)
     }
 
+    public(package) fun uid_mut(
+        self: &mut MizuNFT,
+    ): &mut UID {
+        &mut self.id
+    }
+
     public(package) fun set_attributes(self: &mut MizuNFT, attributes: Attributes) {
         assert!(option::is_none(&self.attributes), EAttributesAlreadySet);
         option::fill(&mut self.attributes, attributes);

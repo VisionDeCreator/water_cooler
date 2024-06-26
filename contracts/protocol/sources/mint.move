@@ -50,8 +50,7 @@ module galliun::mint {
         minted_by: address,
         claim_expiration_epoch: u64,
     }
-
-
+    
     public struct MintSettings has key {
         id: UID,
         price: u64,
