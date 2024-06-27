@@ -9,7 +9,8 @@ module galliun::helpers {
     use galliun::{
         cooler_factory::{init_for_cooler},
         mint::{init_for_mint},
-        water_cooler::{Self, init_for_water}
+        water_cooler::{Self, init_for_water},
+        receive::{init_test_receive},
     };
 
     // === Constants ===
@@ -30,6 +31,9 @@ module galliun::helpers {
        };
        {
         init_for_water(ts::ctx(scenario));
+       };
+       {
+        init_test_receive(ts::ctx(scenario));
        };
        scenario_val
     }

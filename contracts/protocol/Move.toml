@@ -1,0 +1,11 @@
+[package]
+name = "galliun"
+edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/devnet" }
+CoolerFactoryToken = { local = "../tokens" }
+
+[addresses]
+galliun = "0x0"
+treasury = "0xde0053243f3226649701a7fe2c3988be11941bf3ff3535f3c8c5bf32fc600220"
