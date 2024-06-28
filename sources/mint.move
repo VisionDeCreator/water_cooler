@@ -318,17 +318,17 @@ module galliun::mint {
     }
 
     public fun set_og_ticket_display_name(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
+        og_ticket_display: &mut Display<OriginalGangsterTicket>, 
         new_name: String
     ) {
-        wl_ticket_display.edit(b"name".to_string(), new_name);
+        og_ticket_display.edit(b"name".to_string(), new_name);
     }
 
     public fun set_og_ticket_display_image(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
+        og_ticket_display: &mut Display<OriginalGangsterTicket>, 
         new_image: String
     ) {
-        wl_ticket_display.edit(b"image_url".to_string(), new_image);
+        og_ticket_display.edit(b"image_url".to_string(), new_image);
     }
 
     // === Package functions ===
