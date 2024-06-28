@@ -15,7 +15,7 @@ module galliun::water_cooler_test {
         water_cooler::{Self, WaterCooler, WaterCoolerAdminCap},
         mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory, FactoryOwnerCap},
-        mint::{Self, Mint, MintAdminCap, MintSettings, MintWarehouse, WhitelistTicket, OriginalGangsterTicket},
+        mint::{Self, Mint, MintCap, MintAdminCap, MintSettings, MintWarehouse, WhitelistTicket, OriginalGangsterTicket},
         attributes::{Self, Attributes},
         collection::{Collection},
         registry::{Registry},
@@ -667,7 +667,7 @@ module galliun::water_cooler_test {
         // set the reveal_mint
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
-            let mint_cap = ts::take_from_sender<MintAdminCap>(scenario);
+            let mint_cap = ts::take_from_sender<MintCap>(scenario);
             let mut mint_ = ts::take_shared<Mint>(scenario);
             let attributes = ts::take_from_sender<Attributes>(scenario);
             let image_ = string::utf8(b"image");
